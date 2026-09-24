@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Navier-Stokes AI: Approach & Methodology</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#0b0f14}
+body{padding:24px 16px 48px;font-family:'IBM Plex Sans',Arial,sans-serif}
+.bar{max-width:1280px;margin:0 auto 16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;color:#9fb0ac;font-size:14px}
+.bar a{color:#9fb0ac}
+.frame{max-width:1280px;margin:0 auto 20px;aspect-ratio:16/9;position:relative;overflow:hidden;border-radius:8px;box-shadow:0 4px 24px rgba(0,0,0,.4)}
+.scale{position:absolute;top:0;left:0;width:1920px;height:1080px;transform-origin:0 0}
+.scale>section{position:relative;width:1920px;height:1080px;overflow:hidden}
+section p,section h1,section h2,section h3,section table,section ul,section ol{margin:0}
+section img{display:block;max-width:100%}
+section td,section th{padding:4px 8px}
+</style></head><body>
+<div class="bar"><span>Navier-Stokes AI: Approach & Methodology</span><span><a href="./">Case study page</a></span></div>
+<div class="frame"><div class="scale"><section id="cover" data-transition="fade" style="display:flex; flex-direction:column; justify-content:space-between; padding:128px; background:linear-gradient(135deg, #0f1720 0%, #16232e 100%)">
+  <div style="display:flex; flex-direction:column; align-self:start; padding:14px 28px; background:#2dd4bf24; border-radius:256px">
+    <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#2dd4bf">Conference Talk</p>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:32px">
+    <h1 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:120px; font-weight:700; line-height:1.03; color:#f7f7f4">Navier-Stokes AI</h1>
+    <p style="width:1400px; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:36px; font-weight:400; line-height:1.4; color:#9fb0ac">A verification-first approach to physics-grounded AI for CFD-based medical-device design optimization</p>
+  </div>
+  <div style="display:flex; flex-direction:row; align-items:end; justify-content:space-between">
+    <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:28px; font-weight:500; color:#f2f4f3">Amir Sajjadi</p>
+  </div>
+  
+</section></div></div>
+<div class="frame"><div class="scale"><section id="question" data-transition="fade" style="background:#F7F7F4; font-family:'IBM Plex Sans', Arial, sans-serif; color:#12181F; padding:128px 128px 160px; display:flex; flex-direction:column; justify-content:center; gap:56px">
+  <div style="align-self:flex-start; background:#DEF2ED; padding:14px 28px; border-radius:999px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:2px; color:#0E7C6B; text-transform:uppercase">The Engineering Question</p>
+  </div>
+  <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:72px; font-weight:600; line-height:1.2; width:1550px; color:#12181F">Can a validated AI surrogate reduce the number of expensive CFD simulations needed to optimize an intravascular device design?</h2>
+  <p style="font-size:28px; color:#5B6570; width:1500px; line-height:1.5">This does not claim to solve the general Navier&ndash;Stokes existence-and-smoothness problem. Navier&ndash;Stokes remains the physics foundation &mdash; AI approximates validated numerical solutions inside a defined design space.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1600px; font-size:24px; color:#5B6570">Navier-Stokes AI &mdash; Approach &amp; Methodology</p>
+</section></div></div>
+<div class="frame"><div class="scale"><section id="trust-gap" data-transition="fade" style="background:#F7F7F4; font-family:'IBM Plex Sans', Arial, sans-serif; color:#12181F; padding:128px 128px 160px; display:flex; flex-direction:column; gap:40px">
+  <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:64px; font-weight:600; color:#12181F">The trust gap</h2>
+  <div style="display:flex; gap:40px; flex:1">
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:48px; display:flex; flex-direction:column; gap:20px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:1px; color:#B5720B; text-transform:uppercase">Pure AI surrogate</p>
+      <h3 style="font-size:36px; font-weight:600; color:#12181F">Fast, but unverified</h3>
+      <p style="font-size:26px; color:#5B6570; line-height:1.5">Learns correlations from limited data. Nothing guarantees it respects mass or momentum conservation outside the training set.</p>
+    </div>
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:48px; display:flex; flex-direction:column; gap:20px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:1px; color:#0E7C6B; text-transform:uppercase">Full CFD</p>
+      <h3 style="font-size:36px; font-weight:600; color:#12181F">Accurate, but slow</h3>
+      <p style="font-size:26px; color:#5B6570; line-height:1.5">Physically grounded and independently verifiable, but too expensive to run thousands of times across a large design space.</p>
+    </div>
+  </div>
+  <div style="background:#12181F; border-radius:20px; padding:40px 48px; display:flex; align-items:center; gap:24px">
+    <p style="font-size:30px; font-weight:600; color:#2DD4BF">The answer:</p>
+    <p style="font-size:30px; color:#F2F4F3">a verification-first pipeline &mdash; AI is only ever trained on physics that has already been proven correct.</p>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1600px; font-size:24px; color:#5B6570">Navier-Stokes AI &mdash; Approach &amp; Methodology</p>
+</section></div></div>
+<div class="frame"><div class="scale"><section id="approach" data-transition="fade" style="background:#F7F7F4; font-family:'IBM Plex Sans', Arial, sans-serif; color:#12181F; padding:96px 128px 140px; display:flex; flex-direction:column; gap:24px">
+  <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:60px; font-weight:600; color:#12181F">The methodology: a closed verification loop</h2>
+  <div style="display:flex; align-items:stretch; gap:16px">
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:10px">
+      <p style="font-size:24px; font-weight:700; color:#0E7C6B">1 &middot; Geometry + BCs</p>
+      <p style="font-size:24px; color:#5B6570; line-height:1.35">Catheter/vessel geometry, flow rate, fluid properties</p>
+    </div>
+    <div style="background:#0E7C6B; width:40px; height:24px; clip-path:polygon(0 30%,60% 30%,60% 0,100% 50%,60% 100%,60% 70%,0 70%); align-self:center; flex-shrink:0"></div>
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:10px">
+      <p style="font-size:24px; font-weight:700; color:#0E7C6B">2 &middot; Navier&ndash;Stokes / CFD</p>
+      <p style="font-size:24px; color:#5B6570; line-height:1.35">Axisymmetric incompressible solver</p>
+    </div>
+    <div style="background:#0E7C6B; width:40px; height:24px; clip-path:polygon(0 30%,60% 30%,60% 0,100% 50%,60% 100%,60% 70%,0 70%); align-self:center; flex-shrink:0"></div>
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:10px">
+      <p style="font-size:24px; font-weight:700; color:#0E7C6B">3 &middot; Verification &amp; QA gate</p>
+      <p style="font-size:24px; color:#5B6570; line-height:1.35">Analytical, mass, residual, mesh checks</p>
+    </div>
+    <div style="background:#0E7C6B; width:40px; height:24px; clip-path:polygon(0 30%,60% 30%,60% 0,100% 50%,60% 100%,60% 70%,0 70%); align-self:center; flex-shrink:0"></div>
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:10px">
+      <p style="font-size:24px; font-weight:700; color:#0E7C6B">4 &middot; Selected CFD dataset</p>
+      <p style="font-size:24px; color:#5B6570; line-height:1.35">Only gate-passing cases proceed</p>
+    </div>
+  </div>
+  <div style="display:flex; justify-content:flex-end">
+    <div style="background:#B5720B; width:24px; height:40px; clip-path:polygon(30% 0,70% 0,70% 60%,100% 60%,50% 100%,0 60%,30% 60%); align-self:center; flex-shrink:0"></div>
+  </div>
+  <div style="display:flex; align-items:stretch; gap:16px">
+    <div style="flex:1; background:#FBEAD0; border:1px solid #F0D5A6; border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:10px">
+      <p style="font-size:24px; font-weight:700; color:#B5720B">5 &middot; AI surrogate</p>
+      <p style="font-size:24px; color:#7A5417; line-height:1.35">Trained on verified cases + active learning</p>
+    </div>
+    <div style="background:#B5720B; width:40px; height:24px; clip-path:polygon(0 30%,60% 30%,60% 0,100% 50%,60% 100%,60% 70%,0 70%); align-self:center; flex-shrink:0"></div>
+    <div style="flex:1; background:#FBEAD0; border:1px solid #F0D5A6; border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:10px">
+      <p style="font-size:24px; font-weight:700; color:#B5720B">6 &middot; Design-space search</p>
+      <p style="font-size:24px; color:#7A5417; line-height:1.35">Thousands of candidates, surrogate-scored</p>
+    </div>
+    <div style="background:#B5720B; width:40px; height:24px; clip-path:polygon(0 30%,60% 30%,60% 0,100% 50%,60% 100%,60% 70%,0 70%); align-self:center; flex-shrink:0"></div>
+    <div style="flex:1; background:#FBEAD0; border:1px solid #F0D5A6; border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:10px">
+      <p style="font-size:24px; font-weight:700; color:#B5720B">7 &middot; Best candidates</p>
+      <p style="font-size:24px; color:#7A5417; line-height:1.35">Ranked by pressure drop, shear, velocity</p>
+    </div>
+    <div style="background:#0E7C6B; width:40px; height:24px; clip-path:polygon(0 30%,60% 30%,60% 0,100% 50%,60% 100%,60% 70%,0 70%); align-self:center; flex-shrink:0"></div>
+    <div style="flex:1; background:#DEF2ED; border:1px solid #BEE6DC; border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:10px">
+      <p style="font-size:24px; font-weight:700; color:#0E7C6B">8 &middot; CFD confirmation</p>
+      <p style="font-size:24px; color:#0B5F52; line-height:1.35">High-fidelity re-check before any claim is made</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:56px; width:1600px; font-size:24px; color:#5B6570">Physics (teal) generates ground truth &middot; AI (amber) searches the design space faster</p>
+  
+</section></div></div>
+<div class="frame"><div class="scale"><section id="guardrails" data-transition="fade" style="background:#0F1720; font-family:'IBM Plex Sans', Arial, sans-serif; color:#F2F4F3; padding:112px 128px 140px; display:flex; flex-direction:column; gap:36px">
+  <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:60px; font-weight:600; color:#F7F7F4">Scientific guardrails</h2>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px">
+    <div style="background:#17212B; border-radius:16px; padding:32px; display:flex; gap:20px; align-items:flex-start">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#2DD4BF; width:32px; height:32px; flex-shrink:0" aria-hidden="true"><path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>
+      <p style="font-size:26px; color:#DDE3E0; line-height:1.4">Distinguish analytical, reduced-order, numerical CFD, and AI results &mdash; never blur the four</p>
+    </div>
+    <div style="background:#17212B; border-radius:16px; padding:32px; display:flex; gap:20px; align-items:flex-start">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#2DD4BF; width:32px; height:32px; flex-shrink:0" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+      <p style="font-size:26px; color:#DDE3E0; line-height:1.4">Verify the numerical solver before it ever generates AI training data</p>
+    </div>
+    <div style="background:#17212B; border-radius:16px; padding:32px; display:flex; gap:20px; align-items:flex-start">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#2DD4BF; width:32px; height:32px; flex-shrink:0" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+      <p style="font-size:26px; color:#DDE3E0; line-height:1.4">Keep held-out CFD cases strictly separate from AI training</p>
+    </div>
+    <div style="background:#17212B; border-radius:16px; padding:32px; display:flex; gap:20px; align-items:flex-start">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#2DD4BF; width:32px; height:32px; flex-shrink:0" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>
+      <p style="font-size:26px; color:#DDE3E0; line-height:1.4">Quantify prediction error and computational time &mdash; every time</p>
+    </div>
+    <div style="background:#17212B; border-radius:16px; padding:32px; display:flex; gap:20px; align-items:flex-start">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#F5A623; width:32px; height:32px; flex-shrink:0" aria-hidden="true"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5"/></svg>
+      <p style="font-size:26px; color:#DDE3E0; line-height:1.4">Never present synthetic or example values as measured results</p>
+    </div>
+    <div style="background:#17212B; border-radius:16px; padding:32px; display:flex; gap:20px; align-items:flex-start">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#2DD4BF; width:32px; height:32px; flex-shrink:0" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg>
+      <p style="font-size:26px; color:#DDE3E0; line-height:1.4">Confirm every optimized AI candidate with the high-fidelity solver</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:56px; width:1600px; font-size:24px; color:#9FB0AC">A result is only promoted after its verification gate passes &mdash; green CI is not the same as physical validation</p>
+  
+</section></div></div>
+<div class="frame"><div class="scale"><section id="baseline-results" data-transition="fade" style="background:#F7F7F4; font-family:'IBM Plex Sans', Arial, sans-serif; color:#12181F; padding:112px 128px 140px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:8px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:1px; color:#0E7C6B; text-transform:uppercase">Milestone 1 &middot; complete</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:56px; font-weight:600; color:#12181F">A verified physics baseline</h2>
+    <p style="font-size:26px; color:#5B6570; width:1550px">Concentric-annulus flow around a straight catheter &mdash; the one case with a known closed-form solution, used as ground truth before any CFD result is trusted.</p>
+  </div>
+  <div style="display:flex; gap:32px; flex:1">
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:40px; display:flex; flex-direction:column; gap:18px">
+      <p style="font-size:28px; font-weight:600; color:#12181F">Reference operating point</p>
+      <table style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:26px; color:#12181F">
+        <tr><td style="width:60%; color:#5B6570">Reynolds number</td><td style="width:40%; text-align:right; font-weight:600">&asymp; 107.1</td></tr>
+        <tr><td style="color:#5B6570">Analytical pressure drop</td><td style="text-align:right; font-weight:600">736.92 Pa</td></tr>
+        <tr><td style="color:#5B6570">Analytical max. velocity</td><td style="text-align:right; font-weight:600">0.2666 m/s</td></tr>
+        <tr><td style="color:#5B6570">Catheter wall shear</td><td style="text-align:right; font-weight:600">4.29 Pa</td></tr>
+        <tr><td style="color:#5B6570">Vessel wall shear</td><td style="text-align:right; font-weight:600">3.38 Pa</td></tr>
+      </table>
+    </div>
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:40px; display:flex; flex-direction:column; gap:18px">
+      <p style="font-size:28px; font-weight:600; color:#12181F">Grid convergence (numerical vs. exact)</p>
+      <table style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:26px; color:#12181F">
+        <tr><th style="width:34%; text-align:left">Grid points</th><th style="width:33%; text-align:right">&Delta;P error</th><th style="width:33%; text-align:right">Velocity L2 error</th></tr>
+        <tr><td>21</td><td style="text-align:right">0.259%</td><td style="text-align:right">0.248%</td></tr>
+        <tr><td>41</td><td style="text-align:right">0.065%</td><td style="text-align:right">0.062%</td></tr>
+        <tr><td>81</td><td style="text-align:right">0.016%</td><td style="text-align:right">0.016%</td></tr>
+        <tr><td>161</td><td style="text-align:right; color:#0E7C6B; font-weight:700">0.004%</td><td style="text-align:right; color:#0E7C6B; font-weight:700">0.004%</td></tr>
+      </table>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:56px; width:1600px; font-size:24px; color:#5B6570">Error decreases monotonically with mesh refinement &mdash; a convergence study, not a single lucky run</p>
+  
+</section></div></div>
+<div class="frame"><div class="scale"><section id="flow-fields" data-transition="fade" style="background:#F7F7F4; font-family:'IBM Plex Sans', Arial, sans-serif; color:#12181F; padding:112px 128px 140px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:8px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:1px; color:#0E7C6B; text-transform:uppercase">NS-0001 &middot; Straight annulus</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:56px; font-weight:600; color:#12181F">What the solver actually computes</h2>
+  </div>
+  <div style="display:flex; gap:32px; flex:1">
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:28px; display:flex; flex-direction:column; gap:16px">
+      <img src="slides-img/75382d8b030dcdf4d6de119e0f8458b7.png" alt="Numerical axial velocity field in the annular domain" style="width:100%; height:520px; object-fit:contain; border-radius:12px">
+      <p style="font-size:24px; color:#5B6570">Axial velocity field</p>
+    </div>
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:28px; display:flex; flex-direction:column; gap:16px">
+      <img src="slides-img/a6981a4fa09e4ef9c3758c0d617f62e2.png" alt="Numerical pressure field in the annular domain" style="width:100%; height:520px; object-fit:contain; border-radius:12px">
+      <p style="font-size:24px; color:#5B6570">Pressure field</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:56px; width:1600px; font-size:24px; color:#5B6570">Straight-duct verification case &mdash; tapered-geometry CFD is the current development target</p>
+  
+</section></div></div>
+<div class="frame"><div class="scale"><section id="convergence" data-transition="fade" style="background:#F7F7F4; font-family:'IBM Plex Sans', Arial, sans-serif; color:#12181F; padding:112px 128px 140px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:8px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:1px; color:#0E7C6B; text-transform:uppercase">Why we trust it</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:56px; font-weight:600; color:#12181F">Convergence, not coincidence</h2>
+  </div>
+  <div style="display:flex; gap:32px; flex:1">
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:28px; display:flex; flex-direction:column; gap:16px">
+      <img src="slides-img/c106bc660459224f63756199ba8aefd7.png" alt="Numerical versus analytical radial velocity profile" style="width:100%; height:520px; object-fit:contain; border-radius:12px">
+      <p style="font-size:24px; color:#5B6570">Numerical vs. analytical velocity profile</p>
+    </div>
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:28px; display:flex; flex-direction:column; gap:16px">
+      <img src="slides-img/945914a4ffc2b449b4ddc7cc3a6c1300.png" alt="Residual convergence history for continuity and momentum" style="width:100%; height:520px; object-fit:contain; border-radius:12px">
+      <p style="font-size:24px; color:#5B6570">Residual convergence history</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:56px; width:1600px; font-size:24px; color:#5B6570">28 iterations to convergence &middot; continuity residual 9.5e-08 &middot; no-slip and mass conservation both pass</p>
+  
+</section></div></div>
+<div class="frame"><div class="scale"><section id="solver-technical-detail" data-transition="fade" style="background:#f7f7f4; font-family:'IBM Plex Sans', Arial, sans-serif; padding:80px 128px 48px; display:flex; flex-direction:column; gap:12px">
+  <div style="display:flex; flex-direction:column; gap:4px">
+    <p style="font-size:20px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#5b6570">Technical detail &middot; the solver behind every result shown</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:40px; font-weight:600; color:#12181f">Body-fitted, finite-volume, SIMPLE-coupled axisymmetric Navier-Stokes</h2>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:6px; padding:14px 22px; background:#ffffff; border:1px solid #e2e4e0; border-radius:14px">
+    <p style="font-size:17px; font-weight:600; color:#12181f">Governing equations &mdash; steady, incompressible, no swirl</p>
+    <img src="slides-img/e913a5353a5664851a118ce420c90e5b.png" alt="Continuity, axial momentum, and radial momentum equations in cylindrical coordinates" style="width:1620px; height:190px; object-fit:contain">
+  </div>
+  <div style="display:flex; gap:18px; flex:1">
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px; padding:14px 22px; background:#ffffff; border:1px solid #e2e4e0; border-radius:14px">
+      <p style="font-size:17px; font-weight:600; color:#12181f">Discretization</p>
+      <img src="slides-img/48e366b7e7e482c2f1441ea9d9698796.png" alt="Body-fitted mapping r(z,eta) = R_i(z) + H(z) S(eta)" style="width:750px; height:78px; object-fit:contain">
+      <img src="slides-img/9d4a5353157e1c3063b5306260672292.png" alt="Face decomposition S = S_orth + S_nonorth and implicit orthogonal diffusion plus deferred correction" style="width:750px; height:82px; object-fit:contain">
+      <p style="font-size:16px; line-height:1.45; color:#3a4148">Finite-volume, cell-centered, collocated. Every face area / cell volume is the exact solid of revolution (2&pi;r weighting). Convection: first-order upwind on conservative shared face mass fluxes.</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:10px">
+      <div style="display:flex; flex-direction:column; gap:8px; padding:14px 22px; background:#eef2fb; border:1px solid #c9d6f0; border-radius:14px">
+        <p style="font-size:17px; font-weight:600; color:#1a3fae">Pressure-velocity coupling: SIMPLE</p>
+        <img src="slides-img/4c851750f88e3693478b7db037693f9e.png" alt="Pressure correction equation A p' = b, face flux correction, and under-relaxed update" style="width:750px; height:118px; object-fit:contain">
+        <p style="font-size:15px; line-height:1.4; color:#233b7a">Loop: momentum predictor (implicit, under-relaxed) &rarr; predicted face fluxes + BCs &rarr; solve for p' &rarr; correct p, u, fluxes &rarr; repeat until continuity + flux-change both fall under tolerance.</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; padding:12px 22px; background:#ffffff; border:1px solid #e2e4e0; border-radius:14px">
+        <p style="font-size:16px; font-weight:600; color:#12181f">Boundary conditions</p>
+        <p style="font-size:15px; line-height:1.4; color:#3a4148"><b>Walls:</b> no-slip, from actual cell-to-face geometry &nbsp;|&nbsp; <b>Inlet/outlet:</b> specified mass flow rate &nbsp;|&nbsp; <b>Axis (tip track):</b> falls out of the geometry &mdash; revolved area is exactly zero at r=0</p>
+      </div>
+      <div style="display:flex; flex-direction:row; justify-content:space-between; padding:10px 22px; background:#17212B; border-radius:14px">
+        <p style="font-size:15px; color:#DDE3E0">&rho; = 1060 kg/m&sup3;, &mu; = 0.0035 Pa&middot;s (blood-like)</p>
+        <p style="font-size:15px; color:#DDE3E0">Typical case: 100 mL/min</p>
+      </div>
+    </div>
+  </div>
+  
+</section></div></div>
+<div class="frame"><div class="scale"><section id="ns0003-geometry" data-transition="fade" style="background:#F7F7F4; font-family:'IBM Plex Sans', Arial, sans-serif; color:#12181F; padding:96px 128px 140px; display:flex; flex-direction:column; gap:24px">
+  <div style="display:flex; align-items:center; justify-content:space-between">
+    <div style="display:flex; flex-direction:column; gap:8px">
+      <p style="font-size:24px; font-weight:600; letter-spacing:1px; color:#B5720B; text-transform:uppercase">NS-0003 &middot; Physics Engine v1</p>
+      <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:52px; font-weight:600; color:#12181F">The mid-shaft device, meshed and frozen</h2>
+    </div>
+    <div style="background:#DEF2ED; padding:14px 28px; border-radius:999px">
+      <p style="font-size:24px; font-weight:600; color:#0E7C6B">Verified 2D solve &middot; merged to main</p>
+    </div>
+  </div>
+  <div style="display:flex; gap:32px; flex:1">
+    <div style="flex:1.5; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:28px; display:flex; flex-direction:column; gap:16px">
+      <img src="slides-img/1d9366d66b56f8fb54c72d972e025449.png" alt="Real body-fitted 161 by 41 mesh conforming to the device geometry and vessel wall, with wall-clustered radial spacing" style="width:100%; height:460px; object-fit:contain; border-radius:12px">
+      <p style="font-size:24px; color:#5B6570">Actual solver output: 161&times;41 body-fitted production mesh</p>
+    </div>
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:36px; display:flex; flex-direction:column; gap:16px">
+      <p style="font-size:28px; font-weight:600; color:#12181F">Frozen baseline parameters</p>
+      <table style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:25px; color:#12181F">
+        <tr><td style="width:62%; color:#5B6570">Vessel ID</td><td style="width:38%; text-align:right; font-weight:600">4.0 mm</td></tr>
+        <tr><td style="color:#5B6570">Shaft OD</td><td style="text-align:right; font-weight:600">2.0 mm</td></tr>
+        <tr><td style="color:#5B6570">Device body OD</td><td style="text-align:right; font-weight:600">2.4 mm</td></tr>
+        <tr><td style="color:#5B6570">Body length</td><td style="text-align:right; font-weight:600">15 mm</td></tr>
+        <tr><td style="color:#5B6570">Transition length</td><td style="text-align:right; font-weight:600">3 mm</td></tr>
+        <tr><td style="color:#5B6570">Flow rate</td><td style="text-align:right; font-weight:600">100 mL/min</td></tr>
+        <tr><td style="color:#5B6570">Production mesh</td><td style="text-align:right; font-weight:600">161 &times; 41</td></tr>
+      </table>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:56px; width:1600px; font-size:24px; color:#5B6570">Shaft continues on both sides of the bulge &mdash; a different geometry from the free-ended circular-tip candidate shown later in this deck</p>
+  
+</section></div></div>
+<div class="frame"><div class="scale"><section id="ns0003-results" data-transition="fade" style="background:#F7F7F4; font-family:'IBM Plex Sans', Arial, sans-serif; color:#12181F; padding:96px 128px 140px; display:flex; flex-direction:column; gap:24px">
+  <div style="display:flex; flex-direction:column; gap:8px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:1px; color:#0E7C6B; text-transform:uppercase">NS-0003 &middot; CFD solution</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:52px; font-weight:600; color:#12181F">A real 2D flow solve around the mid-shaft device</h2>
+  </div>
+  <div style="display:flex; gap:32px">
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:24px; display:flex; flex-direction:column; gap:12px">
+      <img src="slides-img/e0cd129561c828797a9cf4b793278b1a.png" alt="Velocity magnitude contour: flow accelerates through the device constriction from about 0.27 to 0.31 metres per second" style="width:100%; height:340px; object-fit:contain; border-radius:12px">
+      <p style="font-size:24px; color:#5B6570">Velocity accelerates through the constriction, exactly as continuity predicts</p>
+    </div>
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:24px; display:flex; flex-direction:column; gap:12px">
+      <img src="slides-img/1039ad0ef36cebd9da578dc58edf9144.png" alt="Pressure contour decreasing smoothly and monotonically along the vessel from inlet to outlet" style="width:100%; height:340px; object-fit:contain; border-radius:12px">
+      <p style="font-size:24px; color:#5B6570">Pressure drops smoothly and monotonically along the vessel</p>
+    </div>
+  </div>
+  <div style="display:flex; gap:20px">
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:6px">
+      <p style="font-size:24px; color:#5B6570">Pressure drop</p>
+      <p style="font-size:34px; font-weight:700; color:#0E7C6B">846 Pa</p>
+    </div>
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:6px">
+      <p style="font-size:24px; color:#5B6570">Peak velocity</p>
+      <p style="font-size:34px; font-weight:700; color:#0E7C6B">0.314 m/s</p>
+    </div>
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:6px">
+      <p style="font-size:24px; color:#5B6570">Max device WSS</p>
+      <p style="font-size:34px; font-weight:700; color:#0E7C6B">6.53 Pa</p>
+    </div>
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:6px">
+      <p style="font-size:24px; color:#5B6570">Converged in</p>
+      <p style="font-size:34px; font-weight:700; color:#0E7C6B">57 iters</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:56px; width:1600px; font-size:24px; color:#5B6570">Negligible mass imbalance at convergence &mdash; independently re-executed and reproduced to 11 significant figures</p>
+  
+</section></div></div>
+<div class="frame"><div class="scale"><section id="ns0003-verification" data-transition="fade" style="background:#F7F7F4; font-family:'IBM Plex Sans', Arial, sans-serif; color:#12181F; padding:96px 128px 140px; display:flex; flex-direction:column; gap:24px">
+  <div style="display:flex; flex-direction:column; gap:8px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:1px; color:#0E7C6B; text-transform:uppercase">NS-0003 &middot; Mesh sensitivity</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:52px; font-weight:600; color:#12181F">What's solid, and what's explicitly flagged</h2>
+  </div>
+  <div style="display:flex; gap:32px; flex:1">
+    <div style="flex:1.3; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:24px; display:flex; flex-direction:column; gap:12px">
+      <img src="slides-img/e8200d8bac0ea66f7ec390e299dcea7b.png" alt="Wall shear stress along the device and vessel walls, with visible numerical oscillation near the transitions and along the body" style="width:100%; height:400px; object-fit:contain; border-radius:12px">
+      <p style="font-size:24px; color:#5B6570">Wall shear stress: the sawtooth noise near the transitions is real and undisguised</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <div style="background:#FFFFFF; border:1px solid #E2E4E0; border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:10px">
+        <p style="font-size:24px; font-weight:600; color:#0E7C6B">Medium &rarr; fine mesh change (121&times;31 &rarr; 161&times;41 &rarr; 201&times;51)</p>
+        <table style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; color:#12181F">
+          <tr><td style="width:64%; color:#5B6570">Pressure drop</td><td style="width:36%; text-align:right; font-weight:600">0.60%</td></tr>
+          <tr><td style="color:#5B6570">Peak velocity</td><td style="text-align:right; font-weight:600">0.07%</td></tr>
+          <tr><td style="color:#5B6570">Device max WSS</td><td style="text-align:right; font-weight:600">0.93%</td></tr>
+          <tr><td style="color:#B5720B">Device P95 WSS</td><td style="text-align:right; font-weight:600; color:#B5720B">3.37%</td></tr>
+          <tr><td style="color:#5B6570">Vessel max WSS</td><td style="text-align:right; font-weight:600">1.63%</td></tr>
+        </table>
+      </div>
+      <div style="background:#FBEAD0; border:1px solid #F0D5A6; border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:8px">
+        <p style="font-size:24px; font-weight:600; color:#B5720B">Documented, not hidden</p>
+        <p style="font-size:25px; color:#7A5417; line-height:1.4">WSS mesh sensitivity is explicitly carried as a qualified, open numerical-quality flag in the project's own decision log &mdash; pressure and velocity are not.</p>
+      </div>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:56px; width:1600px; font-size:24px; color:#5B6570">161&times;41 frozen as the production mesh for dataset generation; 201&times;51 reserved for selective fine-mesh verification</p>
+  
+</section></div></div>
+<div class="frame"><div class="scale"><section id="surrogate-results" data-transition="fade" style="background:#F7F7F4; font-family:'IBM Plex Sans', Arial, sans-serif; color:#12181F; padding:96px 128px 140px; display:flex; flex-direction:column; gap:24px">
+  <div style="display:flex; flex-direction:column; gap:8px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:1px; color:#B5720B; text-transform:uppercase">NS0003-DATASET-v1 &middot; After active-learning round 1</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:52px; font-weight:600; color:#12181F">The AI surrogate, on real CFD data</h2>
+  </div>
+  <div style="display:flex; gap:32px; flex:1">
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:24px; display:flex; flex-direction:column; align-items:center; justify-content:center">
+      <img src="slides-img/ad1bff1066ca3677d4b9541577cbd311.png" alt="Predicted versus actual pressure drop on 7 held-out CFD cases after active learning, closely tracking the perfect-prediction line" style="width:100%; height:460px; object-fit:contain; border-radius:12px">
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <div style="background:#FFFFFF; border:1px solid #E2E4E0; border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:12px">
+        <p style="font-size:24px; font-weight:600; color:#0E7C6B">Held-out R&sup2; (Gaussian Process, 18 train / 7 test)</p>
+        <table style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:25px; color:#12181F">
+          <tr><td style="width:52%; color:#5B6570">Pressure drop</td><td style="width:24%; text-align:right; font-weight:700; color:#0E7C6B">0.999</td><td style="width:24%; text-align:right; font-size:20px; color:#9AA5AC">was 0.998</td></tr>
+          <tr><td style="color:#5B6570">Peak velocity</td><td style="text-align:right; font-weight:700; color:#0E7C6B">0.9997</td><td style="text-align:right; font-size:20px; color:#9AA5AC">was 0.999</td></tr>
+          <tr><td style="color:#5B6570">Vessel max WSS</td><td style="text-align:right; font-weight:700; color:#0E7C6B">0.994</td><td style="text-align:right; font-size:20px; color:#9AA5AC">was 0.994</td></tr>
+          <tr><td style="color:#5B6570">Device max WSS</td><td style="text-align:right; font-weight:700; color:#0E7C6B">0.953</td><td style="text-align:right; font-size:20px; color:#B5720B">was 0.890</td></tr>
+        </table>
+      </div>
+      <div style="background:#DEF2ED; border:1px solid #BEE6DC; border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:8px">
+        <p style="font-size:24px; font-weight:600; color:#0E7C6B">Active learning targeted exactly the weak spot</p>
+        <p style="font-size:24px; color:#0B5F52; line-height:1.4">5 new CFD cases, chosen by GP predictive uncertainty (not randomly), landed mostly at the design-space edges. Device WSS &mdash; the weakest output &mdash; improved the most: 0.890 &rarr; 0.953.</p>
+      </div>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:56px; width:1600px; font-size:24px; color:#5B6570">25 total CFD cases on the mid-shaft device geometry (20 initial DOE + 5 active-learning) &middot; HistGradientBoosting baseline still negative R&sup2; on every output at this size</p>
+  
+</section></div></div>
+<div class="frame"><div class="scale"><section id="optimization-confirmation" data-transition="fade" style="background:#F7F7F4; font-family:'IBM Plex Sans', Arial, sans-serif; color:#12181F; padding:96px 128px 140px; display:flex; flex-direction:column; gap:24px">
+  <div style="display:flex; flex-direction:column; gap:8px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:1px; color:#0E7C6B; text-transform:uppercase">AI proposes, CFD confirms &middot; mid-shaft device geometry</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:52px; font-weight:600; color:#12181F">20,000 designs screened for free; 3 confirmed for real</h2>
+  </div>
+  <div style="display:flex; gap:32px; flex:1">
+    <div style="flex:1.3; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:20px; display:flex; align-items:center; justify-content:center">
+      <img src="slides-img/e61a9c6e8bfa104c469fd12c15237a71.png" alt="Scatter plot of 20,000 surrogate-screened candidate designs in pressure-drop vs device-WSS space, showing a strong positive correlation, with the 3-design Pareto front and the CFD-confirmed actual points overlaid almost exactly on top of the predictions" style="width:100%; height:520px; object-fit:contain; border-radius:12px">
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:16px">
+      <div style="background:#DEF2ED; border:1px solid #BEE6DC; border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:8px">
+        <p style="font-size:24px; font-weight:600; color:#0E7C6B">The honest finding</p>
+        <p style="font-size:24px; color:#0B5F52; line-height:1.4">Pressure drop and device WSS are <b>not in conflict</b> here &mdash; both are minimized by the same smallest-body-OD designs. The Pareto front is only 3 designs, not because the search failed, but because there's no real tradeoff to navigate in this space.</p>
+      </div>
+      <div style="background:#FFFFFF; border:1px solid #E2E4E0; border-radius:16px; padding:28px; display:flex; flex-direction:column; gap:12px">
+        <p style="font-size:24px; font-weight:600; color:#12181F">CFD confirmation, 3/3 candidates</p>
+        <table style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:23px; color:#12181F">
+          <tr><th style="width:34%; text-align:left">Design</th><th style="width:33%; text-align:right">&Delta;P error</th><th style="width:33%; text-align:right">WSS error</th></tr>
+          <tr><td>OPT1-001</td><td style="text-align:right">0.05%</td><td style="text-align:right">3.43%</td></tr>
+          <tr><td>OPT1-002</td><td style="text-align:right">0.31%</td><td style="text-align:right">3.38%</td></tr>
+          <tr><td>OPT1-003</td><td style="text-align:right">0.39%</td><td style="text-align:right">3.39%</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:56px; width:1600px; font-size:24px; color:#5B6570">Searched over body OD/length/transition of the mid-shaft device (not the circular-tip candidate) &middot; 20,000 candidates evaluated by surrogate alone, only 3 needed real CFD</p>
+  
+</section></div></div>
+<div class="frame"><div class="scale"><section id="optimized-field-comparison" data-transition="fade" style="background:#F7F7F4; font-family:'IBM Plex Sans', Arial, sans-serif; color:#12181F; padding:88px 128px 140px; display:flex; flex-direction:column; gap:20px">
+  <div style="display:flex; flex-direction:column; gap:8px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:1px; color:#0E7C6B; text-transform:uppercase">Real CFD, both designs, same solver &middot; mid-shaft device geometry</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:48px; font-weight:600; color:#12181F">What the optimization actually changed</h2>
+  </div>
+  <div style="background:#FFFFFF; border:1px solid #E2E4E0; border-radius:20px; padding:16px; display:flex; align-items:center; justify-content:center; flex:1">
+    <img src="slides-img/22f0e0321c4efda09fd0a4c2ceceb7f5.png" alt="Side-by-side real CFD post-processing: velocity magnitude, static pressure, and device wall shear stress for the baseline 2.4mm device versus the surrogate-optimized 2.1mm device. The optimized design shows a visibly smaller velocity peak and roughly half the wall shear stress bump." style="width:100%; height:600px; object-fit:contain; border-radius:12px">
+  </div>
+  <div style="display:flex; gap:24px">
+    <div style="flex:1; background:#DEF2ED; border:1px solid #BEE6DC; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:6px">
+      <p style="font-size:24px; font-weight:600; color:#0E7C6B">Pressure drop</p>
+      <p style="font-size:32px; font-weight:700; color:#0B5F52">846 &rarr; 753 Pa (&minus;11.0%)</p>
+    </div>
+    <div style="flex:1; background:#DEF2ED; border:1px solid #BEE6DC; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:6px">
+      <p style="font-size:24px; font-weight:600; color:#0E7C6B">Device max WSS</p>
+      <p style="font-size:32px; font-weight:700; color:#0B5F52">6.52 &rarr; 4.55 Pa (&minus;30.3%)</p>
+    </div>
+    <div style="flex:1; background:#FFFFFF; border:1px solid #E2E4E0; border-radius:16px; padding:24px; display:flex; flex-direction:column; gap:6px">
+      <p style="font-size:24px; font-weight:600; color:#5B6570">Peak velocity</p>
+      <p style="font-size:32px; font-weight:700; color:#12181F">0.314 &rarr; 0.277 m/s</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:56px; width:1600px; font-size:24px; color:#5B6570">Both fields from the real solver at the same mesh resolution (161&times;41) &mdash; not an illustration, an actual CFD comparison</p>
+  
+</section></div></div>
+<div class="frame"><div class="scale"><section id="tip-geometry-candidate" data-transition="fade" style="background:#f7f7f4">
+  <p id="e1-ij9hhd" style="position:absolute; bottom:56px; left:128px; width:1600px; font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; color:#5b6570">Not connected to the NS-0003 dataset, surrogate, or optimization results shown earlier — a distinct geometry module, on its own solver</p>
+  <div id="5f9b9d85" style="position:absolute; top:96px; left:128px; width:1664px; height:78px; display:flex; flex-direction:row; align-items:center; justify-content:space-between">
+    <div style="display:flex; flex-direction:column; gap:8px">
+      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#b5720b">Separate geometry · not used in any result shown so far</p>
+      <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:44px; font-weight:600; color:#12181f">A free-ended catheter tip, meshed for real</h2>
+    </div>
+    <div style="display:flex; flex-direction:column; padding:14px 28px; background:#def2ed; border-radius:256px">
+      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; font-weight:600; color:#0e7c6b">Boundary condition verified against exact solution</p>
+    </div>
+  </div>
+  <div id="cd497101" style="position:absolute; top:198px; left:128px; width:1664px; height:500px; display:flex; flex-direction:column; gap:12px; padding:24px; background:#ffffff; border:1px solid #e2e4e0; border-radius:20px">
+    <img src="slides-img/403faa9153e81edbb5d8f57e5476eaf1.png" alt="Two panels: the full 100mm domain mesh where the tip region looks compressed because the axes are not equal scale, and a zoomed equal-aspect-ratio view of the tip showing it is a true semicircle exactly matching a reference circle outline" style="width:1616px; height:380px; border-radius:12px; object-fit:contain">
+    <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; color:#5b6570">Top: full-domain mesh (axes not equal scale). Bottom: zoomed, true-to-scale view — the tip is an exact semicircle, verified against a reference circle outline</p>
+  </div>
+  <div id="537bbf8b" style="position:absolute; top:718px; left:128px; width:1664px; display:flex; flex-direction:row; gap:24px">
+    <div style="display:flex; flex-direction:column; gap:8px; flex:1; padding:24px; background:#def2ed; border:1px solid #bee6dc; border-radius:16px">
+      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; font-weight:600; color:#0e7c6b">Verified: axis boundary condition, mesh convergence</p>
+      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; line-height:1.4; color:#0b5f52">Tested against exact Hagen-Poiseuille pipe flow (translation-invariant, no entrance-length ambiguity). L2 profile error decreases monotonically with refinement: 0.87% → 0.26% → 0.17% across 3 grid levels — a real release-gate test now, not a one-off run.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:8px; flex:1; padding:24px; background:#fbead0; border:1px solid #f0d5a6; border-radius:16px">
+      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; font-weight:600; color:#b5720b">Open finding: the rounded tip diverges; a cone does not</p>
+      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; line-height:1.4; color:#7a5417">The rounded tip diverges under every mesh fix tried (Entries 021–030). Root cause: badly skewed cells where the nose closes on the axis. A conical tip stays stable in two solves but has not yet converged (031–034).</p>
+    </div>
+  </div>
+  
+</section></div></div>
+<div class="frame"><div class="scale"><section id="tip-conical-status" data-transition="fade" style="background:#f7f7f4; color:#12181f; font-family:'IBM Plex Sans', Arial, sans-serif; padding:112px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:8px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#b5720b">Separate track &middot; conical tip, current status</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:52px; font-weight:600; color:#12181f">Stable in both solves, not yet converged</h2>
+  </div>
+  <div style="display:flex; gap:48px; align-items:flex-start">
+    <div style="display:flex; flex-direction:column; gap:12px; padding:24px; background:#ffffff; border:1px solid #e2e4e0; border-radius:20px">
+      <svg aria-label="Convergence of the two conical-tip solves on a log scale. The 0.3/0.15 run falls steadily from 6.02e-4 to 2.16e-5 over 4,000 iterations. The 0.7/0.3 run oscillates near 1e-3 to 2e-3 until iteration 1,600, then drops to 4.09e-5 by iteration 3,000. Neither reaches the 1e-7 target." viewBox="0 0 852 370" style="width:852px; height:370px"><line x1="100" y1="320" x2="830" y2="320" stroke="#dfe2df" stroke-width="2"></line><line x1="100" y1="80" x2="830" y2="80" stroke="#dfe2df" stroke-width="2" stroke-dasharray="6,6"></line><text x="88" y="88" font-size="24" text-anchor="end" fill="#5b6570">1e-3</text><line x1="100" y1="200" x2="830" y2="200" stroke="#dfe2df" stroke-width="2" stroke-dasharray="6,6"></line><text x="88" y="208" font-size="24" text-anchor="end" fill="#5b6570">1e-4</text><line x1="100" y1="320" x2="830" y2="320" stroke="#dfe2df" stroke-width="2" stroke-dasharray="6,6"></line><text x="88" y="328" font-size="24" text-anchor="end" fill="#5b6570">1e-5</text><text x="100" y="360" font-size="24" fill="#5b6570">it 0</text><text x="465" y="360" font-size="24" text-anchor="middle" fill="#5b6570">2,000</text><text x="830" y="360" font-size="24" text-anchor="end" fill="#5b6570">4,000</text><polyline fill="none" stroke="#b5720b" stroke-width="4" points="109,77 118,84 136,66 155,74 191,48 246,81 319,42 392,43 465,212 556,229 648,247"></polyline><polyline fill="none" stroke="#0e7c6b" stroke-width="4" points="118,106 155,109 191,116 246,194 319,218 392,227 465,240 556,251 684,264 830,280"></polyline><circle cx="830" cy="280" r="7" fill="#0e7c6b"></circle><circle cx="648" cy="247" r="7" fill="#b5720b"></circle><text x="648" y="229" font-size="24" text-anchor="middle" fill="#12181f">4.1e-5</text><text x="826" y="262" font-size="24" text-anchor="end" fill="#12181f">2.2e-5</text></svg>
+      <p style="font-size:24px; color:#5b6570">Change per iteration, log scale, nz=241. Target 1e-7 is off the bottom.</p>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:16px">
+      <table style="width:716px; border-collapse:collapse"><tr><th style="padding:10px 14px; border:1px solid #dfe2df; background:#eef0ee; font-size:24px; text-align:left">Relaxation (u / p)</th><th style="padding:10px 14px; border:1px solid #dfe2df; background:#eef0ee; font-size:24px; text-align:right"><span style="color:#0e7c6b">0.3 / 0.15</span></th><th style="padding:10px 14px; border:1px solid #dfe2df; background:#eef0ee; font-size:24px; text-align:right"><span style="color:#b5720b">0.7 / 0.3</span></th></tr><tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Iterations</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">4,000</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">3,000</td></tr><tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Wall time</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">~3.6 h</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">~1 h</td></tr><tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Final change / it</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">2.2e-5</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">4.1e-5</td></tr><tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Pressure drop</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">295 Pa</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">293 Pa</td></tr><tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Peak velocity</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">2.43 m/s</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">1.87 m/s</td></tr><tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Mid-domain flow</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">13% low</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">13% low</td></tr></table>
+      <p style="font-size:24px; line-height:1.4; color:#7a5417">Peak velocity differs ~30% between runs and flow is not yet conserved. Not reportable until converged.</p>
+    </div>
+  </div>
+  <div style="display:flex; flex-direction:column; padding:24px 28px; background:#def2ed; border:1px solid #bee6dc; border-radius:16px">
+    <p style="font-size:24px; line-height:1.4; color:#0b5f52"><b>Next:</b> resume from the 0.3 / 0.15 settings with checkpointing (save every 200 iterations, built and tested in Entry 034). About 10,000+ more iterations, roughly 6&ndash;11 hours, to reach 1e-7. Not started: no solve is running as of 24 Sep 2026.</p>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1664px; font-size:24px; color:#5b6570">Source: dev log Entries 032&ndash;034 &middot; not connected to the NS-0003 dataset or surrogate</p>
+  
+</section></div></div>
+<div class="frame"><div class="scale"><section id="roadmap-closing" data-transition="fade" style="background:linear-gradient(135deg, #0F1720 0%, #16232E 100%); font-family:'IBM Plex Sans', Arial, sans-serif; color:#F2F4F3; padding:112px 128px 140px; display:flex; flex-direction:column; gap:32px">
+  <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:56px; font-weight:600; color:#F7F7F4">Where this stands, and what's next</h2>
+  <div style="display:flex; gap:40px; flex:1">
+    <div style="flex:1.1; display:flex; flex-direction:column; gap:14px">
+      <div style="display:flex; align-items:center; gap:16px; background:#17212B; border-radius:12px; padding:20px 28px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#2DD4BF; width:28px; height:28px; flex-shrink:0" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+        <p style="font-size:26px; color:#DDE3E0">1 &middot; Verified physics baseline</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px; background:#17212B; border-radius:12px; padding:20px 28px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#2DD4BF; width:28px; height:28px; flex-shrink:0" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+        <p style="font-size:26px; color:#DDE3E0">2 &middot; Surrogate architecture prototype</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px; background:#17212B; border-radius:12px; padding:20px 28px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#2DD4BF; width:28px; height:28px; flex-shrink:0" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+        <p style="font-size:26px; color:#DDE3E0">3 &middot; Real 2D coupled solve: NS-0002 + NS-0003 (merged to main)</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px; background:#17212B; border-radius:12px; padding:20px 28px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#2DD4BF; width:28px; height:28px; flex-shrink:0" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+        <p style="font-size:26px; color:#DDE3E0">4 &middot; Production CFD dataset, mid-shaft device: 25/25 cases accepted (20 DOE + 5 active-learning)</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px; background:#17212B; border-radius:12px; padding:20px 28px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#2DD4BF; width:28px; height:28px; flex-shrink:0" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+        <p style="font-size:26px; color:#DDE3E0">5 &middot; AI surrogate + active learning round 1, mid-shaft device (GP, held-out R&sup2; 0.95-0.9997)</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px; background:#17212B; border-radius:12px; padding:20px 28px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#2DD4BF; width:28px; height:28px; flex-shrink:0" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+        <p style="font-size:26px; color:#DDE3E0">6 &middot; Surrogate optimization, mid-shaft device (20k screened) + CFD confirmation (3/3 matched)</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px; background:#2A2013; border-radius:12px; padding:20px 28px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#F5A623; width:28px; height:28px; flex-shrink:0" aria-hidden="true"><path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg>
+        <p style="font-size:26px; color:#F2E4CC">7 &middot; Portfolio publication &mdash; last step remaining</p>
+      </div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:space-between; gap:24px">
+      <div style="background:rgba(45,212,191,0.10); border:1px solid rgba(45,212,191,0.3); border-radius:20px; padding:36px; display:flex; flex-direction:column; gap:16px">
+        <p style="font-size:24px; font-weight:600; letter-spacing:1px; color:#2DD4BF; text-transform:uppercase">Core principle</p>
+        <h3 style="font-size:38px; font-weight:600; color:#F7F7F4; line-height:1.3">Use physics to make AI trustworthy. Use AI to make physics-based engineering faster.</h3>
+      </div>
+      <p style="font-size:26px; color:#9FB0AC; line-height:1.5">Nothing is promoted to "verified CFD," used to train the surrogate, or accepted as an optimized design until it passes its gate. The full physics-to-optimization loop is closed &mdash; portfolio writeup is what's left.</p>
+    </div>
+  </div>
+  <div style="display:flex; justify-content:space-between; align-items:flex-end">
+    <p style="font-size:26px; color:#F2F4F3; font-weight:500">Amir Sajjadi</p>
+    <p style="font-size:24px; color:#9FB0AC">Public case study: github.com/asajjadi/navier-stokes-ai-case-study</p>
+  </div>
+  
+</section></div></div>
+<script>
+function fit(){document.querySelectorAll('.frame').forEach(f=>{f.firstElementChild.style.transform='scale('+(f.clientWidth/1920)+')'})}
+addEventListener('resize',fit);fit();
+</script>
+</body></html>

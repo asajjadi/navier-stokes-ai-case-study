@@ -1,0 +1,554 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Navier-Stokes AI</title>
+<style>
+:root{
+  --bg:#f5f7f9;
+  --surface:#ffffff;
+  --surface-2:#eef1f4;
+  --ink:#10161d;
+  --ink-muted:#55636f;
+  --border:#dbe1e6;
+  --accent:#1c6e8c;
+  --accent-ink:#ffffff;
+  --accent-2:#c1622e;
+  --good:#2f7d4f;
+  --good-bg:#e7f2ec;
+  --warn:#9a6b1f;
+  --warn-bg:#f6eddb;
+  --mono-bg:#eef1f4;
+  --shadow: 0 1px 2px rgba(16,22,29,0.06), 0 8px 24px rgba(16,22,29,0.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b0f14;
+    --surface:#121820;
+    --surface-2:#1a222c;
+    --ink:#e7edf2;
+    --ink-muted:#9fadb8;
+    --border:#26303b;
+    --accent:#5db8de;
+    --accent-ink:#06131a;
+    --accent-2:#ef8f57;
+    --good:#5fbf86;
+    --good-bg:#123021;
+    --warn:#e0ac4d;
+    --warn-bg:#302410;
+    --mono-bg:#161d26;
+    --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b0f14;
+  --surface:#121820;
+  --surface-2:#1a222c;
+  --ink:#e7edf2;
+  --ink-muted:#9fadb8;
+  --border:#26303b;
+  --accent:#5db8de;
+  --accent-ink:#06131a;
+  --accent-2:#ef8f57;
+  --good:#5fbf86;
+  --good-bg:#123021;
+  --warn:#e0ac4d;
+  --warn-bg:#302410;
+  --mono-bg:#161d26;
+  --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35);
+}
+
+*{box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  padding:0 16px;
+  line-height:1.6;
+}
+.wrap{max-width:800px;margin:0 auto;}
+.wide{max-width:960px;margin:0 auto;}
+
+h1,h2,h3{font-family:'Fraunces',Georgia,serif; text-wrap:balance; letter-spacing:-0.01em; margin:0;}
+h1{font-weight:900; font-optical-sizing:auto;}
+h2{font-weight:700;}
+h3{font-weight:600;}
+
+p{margin:0 0 1em 0; color:var(--ink);}
+.muted{color:var(--ink-muted);}
+
+a{color:var(--accent);}
+
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace;}
+
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--accent);
+  font-weight:600;
+}
+
+/* ---------- Hero ---------- */
+header.hero{
+  padding-block:56px 40px;
+  border-bottom:1px solid var(--border);
+}
+header.hero h1{
+  font-size:clamp(32px,6vw,52px);
+  line-height:1.05;
+  margin-top:10px;
+}
+header.hero .thesis{
+  font-size:19px;
+  color:var(--ink-muted);
+  max-width:640px;
+  margin-top:16px;
+}
+header.hero .guardrail{
+  margin-top:18px;
+  font-size:14px;
+  color:var(--ink-muted);
+  border-left:3px solid var(--border);
+  padding-left:12px;
+}
+
+.stat-strip{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  margin-top:32px;
+}
+.stat{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:14px 16px;
+  min-width:150px;
+  flex:1 1 150px;
+  box-shadow:var(--shadow);
+}
+.stat .n{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:22px;
+  font-weight:600;
+  font-variant-numeric:tabular-nums;
+  color:var(--accent);
+}
+.stat .l{font-size:12.5px;color:var(--ink-muted);margin-top:2px;}
+
+/* ---------- Sections ---------- */
+section{padding-block:44px;}
+section.band{border-top:1px solid var(--border);}
+section h2{font-size:26px;margin-bottom:6px;}
+section .lede{color:var(--ink-muted); max-width:640px; margin-top:8px;}
+
+/* ---------- Flow diagram ---------- */
+.flow{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:0;
+  margin-top:28px;
+}
+.flow .step{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:10px 14px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12.5px;
+  white-space:nowrap;
+  box-shadow:var(--shadow);
+}
+.flow .arrow{
+  color:var(--ink-muted);
+  padding:0 8px;
+  font-size:14px;
+}
+
+/* ---------- Milestone cards ---------- */
+.milestones{display:flex; flex-direction:column; gap:2px; margin-top:24px;}
+.milestone{
+  display:grid;
+  grid-template-columns:34px 1fr;
+  gap:14px;
+  padding:16px 0;
+  border-top:1px solid var(--border);
+}
+.milestone:first-child{border-top:none;}
+.milestone .num{
+  font-family:'IBM Plex Mono',monospace;
+  color:var(--ink-muted);
+  font-size:13px;
+  padding-top:3px;
+}
+.milestone h3{font-size:16.5px;}
+.milestone .result{
+  margin-top:6px;
+  font-size:14px;
+  color:var(--ink-muted);
+}
+.milestone .result b{color:var(--ink); font-weight:600;}
+.pill{
+  display:inline-block;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  letter-spacing:0.03em;
+  padding:2px 8px;
+  border-radius:999px;
+  background:var(--good-bg);
+  color:var(--good);
+  margin-left:8px;
+  vertical-align:middle;
+}
+
+/* ---------- Charts ---------- */
+.chart-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:20px;
+  margin-top:20px;
+  box-shadow:var(--shadow);
+}
+.chart-card h4{
+  margin:0 0 2px 0;
+  font-size:14px;
+  font-weight:600;
+}
+.chart-card .cap{font-size:12.5px; color:var(--ink-muted); margin-bottom:8px;}
+.chart-row{display:flex; flex-wrap:wrap; gap:20px;}
+.chart-row .chart-card{flex:1 1 320px;}
+svg text{font-family:'IBM Plex Mono',monospace;}
+.legend{display:flex; gap:16px; margin-top:10px; font-size:12px; color:var(--ink-muted);}
+.legend span{display:inline-flex; align-items:center; gap:6px;}
+.swatch{width:10px;height:10px;border-radius:2px;display:inline-block;}
+
+/* ---------- Tables ---------- */
+.tbl-wrap{overflow-x:auto; margin-top:20px;}
+table{border-collapse:collapse; width:100%; font-size:13.5px; min-width:560px;}
+th,td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--border);}
+th{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  letter-spacing:0.04em;
+  text-transform:uppercase;
+  color:var(--ink-muted);
+  font-weight:600;
+}
+td.num{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums;}
+tr.rejected td:first-child{color:var(--ink-muted);}
+.verdict{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  padding:2px 7px;
+  border-radius:5px;
+  white-space:nowrap;
+}
+.v-rejected{background:var(--surface-2); color:var(--ink-muted);}
+.v-open{background:var(--warn-bg); color:var(--warn);}
+.v-stable{background:var(--good-bg); color:var(--good);}
+
+/* ---------- Research narrative ---------- */
+.research-block{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:24px 24px 20px;
+  margin-top:24px;
+}
+.research-block + .research-block{margin-top:14px;}
+.research-block .tag{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:0.05em;
+  color:var(--accent-2);
+  font-weight:600;
+}
+.research-block h3{font-size:17px; margin-top:6px;}
+.research-block p{font-size:14.5px; margin-top:10px;}
+.finding{
+  margin-top:12px;
+  padding:12px 14px;
+  background:var(--mono-bg);
+  border-radius:8px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12.5px;
+  color:var(--ink);
+}
+
+/* ---------- Principles ---------- */
+.principles{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:14px;
+  margin-top:24px;
+}
+.principle{
+  border-left:3px solid var(--accent);
+  padding-left:14px;
+}
+.principle h4{font-size:14px; margin:0 0 4px 0; font-weight:600;}
+.principle p{font-size:13.5px; color:var(--ink-muted); margin:0;}
+
+footer{
+  border-top:1px solid var(--border);
+  padding-block:32px 48px;
+  font-size:13px;
+  color:var(--ink-muted);
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+}
+footer a{color:var(--ink-muted); text-decoration:underline;}
+
+@media (max-width:560px){
+  .milestone{grid-template-columns:24px 1fr;}
+  footer{flex-direction:column;}
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Case study — physics-grounded AI for CFD</div>
+    <h1>Navier&#8209;Stokes AI</h1>
+    <p class="thesis">Can a validated AI surrogate learn from a small, verified set of Navier&#8209;Stokes CFD solutions and cut the number of expensive simulations needed to explore and optimize an intravascular medical&#8209;device design &mdash; without ever letting the AI's confidence outrun the physics backing it?</p>
+    <p class="guardrail">This project does not claim AI has solved the general Navier&#8209;Stokes existence&#8209;and&#8209;smoothness problem. Navier&#8209;Stokes stays the physics foundation throughout; AI approximates verified numerical solutions inside a defined design space.</p>
+
+    <div class="stat-strip">
+      <div class="stat"><div class="n">25/25</div><div class="l">CFD cases passed every verification gate before training</div></div>
+      <div class="stat"><div class="n">0.95&ndash;0.9997</div><div class="l">held-out R&sup2;, GP surrogates</div></div>
+      <div class="stat"><div class="n">20,000</div><div class="l">candidate designs screened by the surrogate</div></div>
+      <div class="stat"><div class="n">3/3</div><div class="l">top candidates independently re-confirmed on the full CFD solver</div></div>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Workflow</div>
+    <h2>Physics first, AI second, confirmation always</h2>
+    <p class="lede">Every stage gates the next. A design never reaches the surrogate before its CFD solution has passed verification, and no optimized candidate is trusted before it's re-run through the full solver.</p>
+    <div class="flow">
+      <div class="step">geometry + operating conditions</div><span class="arrow">&rarr;</span>
+      <div class="step">Navier&#8209;Stokes / CFD</div><span class="arrow">&rarr;</span>
+      <div class="step">verification + physics QA</div><span class="arrow">&rarr;</span>
+      <div class="step">selected CFD dataset</div><span class="arrow">&rarr;</span>
+      <div class="step">AI surrogate &larr; active learning</div><span class="arrow">&rarr;</span>
+      <div class="step">large-scale optimization</div><span class="arrow">&rarr;</span>
+      <div class="step">CFD confirmation</div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="eyebrow">Milestones 1&ndash;6</div>
+    <h2>From an exact solution to a confirmed optimum</h2>
+    <p class="lede">Vessel ID 4&nbsp;mm, catheter OD 2&nbsp;mm, 100&nbsp;mL/min blood flow, incompressible laminar Newtonian flow &mdash; the baseline problem every stage below builds on.</p>
+
+    <div class="milestones">
+      <div class="milestone">
+        <div class="num">01</div>
+        <div>
+          <h3>Verified physics baseline <span class="pill">complete</span></h3>
+          <p class="result">The concentric annular-flow case solved analytically and independently by finite differences. <b>Re &asymp; 107.1</b>, pressure drop <b>736.9&nbsp;Pa</b> over 100&nbsp;mm, catheter-wall shear <b>4.29&nbsp;Pa</b>. A 161-point radial grid reproduces the analytical velocity profile to <b>0.000172%</b> relative L2 error &mdash; the number every later numerical claim is measured against.</p>
+        </div>
+      </div>
+      <div class="milestone">
+        <div class="num">02</div>
+        <div>
+          <h3>Surrogate architecture prototype <span class="pill">complete</span></h3>
+          <p class="result">A reduced-order tapered-catheter model exercised the full physics&nbsp;&rarr;&nbsp;dataset&nbsp;&rarr;&nbsp;surrogate&nbsp;&rarr;&nbsp;optimization pipeline before committing to real CFD. Explicitly not full 2D CFD, and never used to make a CFD-speedup claim &mdash; kept only as architecture scaffolding.</p>
+        </div>
+      </div>
+      <div class="milestone">
+        <div class="num">03</div>
+        <div>
+          <h3>2D axisymmetric Navier&#8209;Stokes solver <span class="pill">complete</span></h3>
+          <p class="result">A body-fitted, finite-volume, SIMPLE-coupled solver, written from the momentum and pressure-correction equations up. The straight-annulus limit reproduces Milestone&nbsp;1's analytical result; every case is gated on mass conservation, residual convergence, and mesh-convergence trend before it counts.</p>
+        </div>
+      </div>
+      <div class="milestone">
+        <div class="num">04</div>
+        <div>
+          <h3>Production CFD dataset <span class="pill">complete</span></h3>
+          <p class="result"><b>25 of 25</b> device-geometry cases accepted (20 design-of-experiments + 5 active-learning), each individually passing its verification gate before it was allowed to train anything.</p>
+        </div>
+      </div>
+      <div class="milestone">
+        <div class="num">05</div>
+        <div>
+          <h3>Active-learning AI surrogate <span class="pill">complete</span></h3>
+          <p class="result">Gaussian Process surrogates for pressure drop and device wall shear stress, with GP predictive uncertainty driving where the next expensive CFD sample gets spent. Held-out <b>R&sup2; 0.95&ndash;0.9997</b> across both outputs.</p>
+        </div>
+      </div>
+      <div class="milestone">
+        <div class="num">06</div>
+        <div>
+          <h3>Optimization + confirmation <span class="pill">complete</span></h3>
+          <p class="result"><b>20,000</b> candidate designs screened through the surrogate; the top designs independently re-run on the full CFD solver &mdash; <b>3 of 3</b> confirmed. The finding itself was worth reporting plainly: pressure drop and wall shear stress don't trade off against each other in this design space, so the true Pareto front is genuinely small. Not a failed search &mdash; a real engineering result.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-card">
+        <h4>What "confirmed" means here</h4>
+        <div class="cap">Every optimized candidate the surrogate proposed was re-solved from scratch on the full CFD solver &mdash; the surrogate's prediction was never taken as the final answer.</div>
+        <svg viewBox="0 0 380 90" width="100%" height="90" role="img" aria-label="20000 candidates screened by surrogate, top 3 re-run on CFD, 3 of 3 confirmed">
+          <rect x="0" y="30" width="380" height="20" rx="4" fill="var(--surface-2)"></rect>
+          <rect x="0" y="30" width="378" height="20" rx="4" fill="var(--accent)" opacity="0.85"></rect>
+          <text x="4" y="20" font-size="11" fill="var(--ink-muted)">20,000 candidates (surrogate screen)</text>
+          <rect x="0" y="62" width="6" height="20" rx="2" fill="var(--accent-2)"></rect>
+          <text x="14" y="76" font-size="11" fill="var(--ink)">3 of 3 re-confirmed on full CFD (0.03% of the screened set)</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="eyebrow">Separate track &mdash; catheter-tip research</div>
+    <h2>A catheter tip that wouldn't converge, and what that taught</h2>
+    <p class="lede">A separate track from the milestones above, not gating any of them: a free-ended catheter tip, open to the vessel downstream. Its axis&#8209;symmetry boundary condition checks out exactly. Its realistic rounded geometry does not converge &mdash; and finding out <em>why</em>, honestly, turned into the most interesting part of this project.</p>
+
+    <div class="research-block">
+      <div class="tag">Verified</div>
+      <h3>The boundary condition is not the problem</h3>
+      <p>Isolated the axis&#8209;symmetry treatment from tip geometry entirely by testing it on a plain straight pipe, which has an exact solution (Hagen&#8209;Poiseuille) at every station. L2 error against that exact profile fell monotonically with mesh refinement &mdash; 0.87% &rarr; 0.26% &rarr; 0.17% &mdash; with mass conservation under 0.1% at every station. The boundary condition itself is correct.</p>
+    </div>
+
+    <div class="research-block">
+      <div class="tag">Root-caused</div>
+      <h3>The real cause: a smooth 3D closure isn't a discretization convenience</h3>
+      <p>Direct mesh inspection (not another expensive solve) found face non-orthogonality spiking from 0.16 to 0.81 across just 3&ndash;4 cells, exactly where a rounded nose closes to a point. That's a real differential-geometry fact, not a mesh bug: any surface of revolution that closes smoothly in 3D is <em>required</em> to meet its own axis with a vertical tangent &mdash; the same reason a sphere's pole looks locally flat. Every mesh-based fix tried below was, in effect, fighting that geometric fact rather than a numerical one.</p>
+    </div>
+
+    <div class="research-block">
+      <div class="tag">Corrected mid-investigation</div>
+      <h3>A diagnostic bug in the investigation itself</h3>
+      <p>A wall-normal mesh looked like a 67% mesh-quality win (0.691 &rarr; 0.225) &mdash; and then the solver got remarkably close to converging before blowing up late and hard. Re-checking every radial mesh row, not just the one nearest the wall, found the real number: 16 of 30 rows were <em>worse</em> than the uniform baseline. The true improvement was 12%, not 67%. This is very likely why the failure looked like a sudden, unexplained blow-up: the undiagnosed error sat in the rows nobody had checked.</p>
+      <div class="finding">worst non-orthogonality, wall row only: 0.691 &rarr; 0.225 (reported)<br>worst non-orthogonality, <b>all 30 rows</b>: 0.691 &rarr; 0.605 (actual)</div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Candidate fix</th><th>Mechanism</th><th>Mesh-quality result</th><th>Verdict</th></tr></thead>
+        <tbody>
+          <tr class="rejected"><td>Axial mesh clustering</td><td>Concentrate z-nodes around the dome</td><td class="num">makes non-orthogonality monotonically worse</td><td><span class="verdict v-rejected">rejected</span></td></tr>
+          <tr class="rejected"><td>Arc-length dome reparametrization</td><td>Re-space nodes along the curve's arc length</td><td class="num">0.81 &rarr; 0.9999 (much worse)</td><td><span class="verdict v-rejected">rejected</span></td></tr>
+          <tr class="rejected"><td>Blunted tip</td><td>Truncate the point to a small flat disk</td><td class="num">real but modest gain; solver still diverges</td><td><span class="verdict v-rejected">rejected</span></td></tr>
+          <tr class="rejected"><td>Wall-normal mesh (localized blend)</td><td>Tilt near-wall cells to follow the surface normal</td><td class="num">genuine ~6% ceiling for this blend family</td><td><span class="verdict v-rejected">ceiling found</span></td></tr>
+          <tr><td>Conical tip (p=1, not p=2)</td><td>Change the <em>shape</em>, not the mesh &mdash; constant slope to the apex</td><td class="num">15&ndash;20% better, resolution-stable</td><td><span class="verdict v-stable">stable</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="research-block">
+      <div class="tag">The turn</div>
+      <h3>Changing the shape instead of the mesh</h3>
+      <p>Every single-block mesh trick applied to the circular tip had a real ceiling, because the profile's slope goes vertical as it approaches the axis &mdash; a property of the shape, not the grid. A cone closes to the same point with a <em>constant</em> slope the whole way, singular only at the literal apex. It's also a legitimate device geometry: real catheter and dilator tips are routinely conical, not just hemispherical.</p>
+      <div class="chart-card" style="margin-top:16px;">
+        <h4>Worst-case face non&#8209;orthogonality, by mesh resolution</h4>
+        <div class="cap">Lower is better. The circular tip's worst case is erratic across resolutions &mdash; a signature of chasing a geometric singularity. The cone's is flat: 0.706 / 0.706 / 0.707.</div>
+        <svg viewBox="0 0 420 220" width="100%" height="220" role="img" aria-label="Non-orthogonality bar chart: circle 0.853, 0.900, 0.810 at nz 241, 361, 401; cone 0.706, 0.706, 0.707 at same resolutions">
+          <line x1="20" y1="190" x2="400" y2="190" stroke="var(--border)"></line>
+          <line x1="20" y1="105" x2="400" y2="105" stroke="var(--border)" stroke-dasharray="3,3"></line>
+          <text x="404" y="109" font-size="10" fill="var(--ink-muted)">0.5</text>
+          <line x1="20" y1="20" x2="400" y2="20" stroke="var(--border)" stroke-dasharray="3,3"></line>
+          <text x="404" y="24" font-size="10" fill="var(--ink-muted)">1.0</text>
+
+          <rect x="30" y="45" width="30" height="145" fill="var(--accent-2)"></rect>
+          <text x="45" y="40" font-size="11" text-anchor="middle" fill="var(--ink)">0.853</text>
+          <rect x="65" y="70" width="30" height="120" fill="var(--accent)"></rect>
+          <text x="80" y="65" font-size="11" text-anchor="middle" fill="var(--ink)">0.706</text>
+          <text x="62" y="208" font-size="11" text-anchor="middle" fill="var(--ink-muted)">nz=241</text>
+
+          <rect x="170" y="37" width="30" height="153" fill="var(--accent-2)"></rect>
+          <text x="185" y="32" font-size="11" text-anchor="middle" fill="var(--ink)">0.900</text>
+          <rect x="205" y="70" width="30" height="120" fill="var(--accent)"></rect>
+          <text x="220" y="65" font-size="11" text-anchor="middle" fill="var(--ink)">0.706</text>
+          <text x="202" y="208" font-size="11" text-anchor="middle" fill="var(--ink-muted)">nz=361</text>
+
+          <rect x="310" y="52" width="30" height="138" fill="var(--accent-2)"></rect>
+          <text x="325" y="47" font-size="11" text-anchor="middle" fill="var(--ink)">0.810</text>
+          <rect x="345" y="70" width="30" height="120" fill="var(--accent)"></rect>
+          <text x="360" y="65" font-size="11" text-anchor="middle" fill="var(--ink)">0.707</text>
+          <text x="342" y="208" font-size="11" text-anchor="middle" fill="var(--ink-muted)">nz=401</text>
+        </svg>
+        <div class="legend">
+          <span><span class="swatch" style="background:var(--accent-2)"></span>circular tip (p=2)</span>
+          <span><span class="swatch" style="background:var(--accent)"></span>conical tip (p=1)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="research-block">
+      <div class="tag">Current status</div>
+      <h3>Confirmed stable, twice &mdash; not yet fully converged</h3>
+      <p>Solved on the actual mesh (nz=241) at two independent relaxation settings. Conservative relaxation gave the cleanest trajectory of the entire investigation: monotonically decreasing residual for all 4,000 iterations, no exceptions. Standard relaxation oscillated but never diverged, then settled sharply &mdash; a second, independent confirmation that the geometry itself is fundamentally well-behaved under this solver.</p>
+      <div class="chart-card" style="margin-top:14px;">
+        <h4>Convergence trajectory, conical tip (log scale)</h4>
+        <div class="cap">Both runs, same mesh (nz=241). Neither diverged &mdash; unlike every circular-tip variant. The 1e-7 target is well below this axis.</div>
+        <svg viewBox="0 0 640 245" width="100%" height="225" role="img" aria-label="Outer change per iteration. Conservative relaxation run falls monotonically from 6.02e-4 at iteration 100 to 2.16e-5 at iteration 4000. Standard relaxation run oscillates between about 1e-3 and 2e-3 until iteration 1600, then drops to 4.09e-5 at iteration 3000.">
+          <line x1="60" y1="220" x2="620" y2="220" stroke="var(--border)"></line>
+          <line x1="60" y1="60" x2="620" y2="60" stroke="var(--border)" stroke-dasharray="3,3"></line><text x="54" y="64" font-size="10" text-anchor="end" fill="var(--ink-muted)">1e-3</text>
+          <line x1="60" y1="140" x2="620" y2="140" stroke="var(--border)" stroke-dasharray="3,3"></line><text x="54" y="144" font-size="10" text-anchor="end" fill="var(--ink-muted)">1e-4</text>
+          <line x1="60" y1="220" x2="620" y2="220" stroke="var(--border)" stroke-dasharray="3,3"></line><text x="54" y="224" font-size="10" text-anchor="end" fill="var(--ink-muted)">1e-5</text>
+          <text x="60" y="236" font-size="10" fill="var(--ink-muted)">it 0</text>
+          <text x="340" y="236" font-size="10" text-anchor="middle" fill="var(--ink-muted)">it 2000</text>
+          <text x="620" y="236" font-size="10" text-anchor="end" fill="var(--ink-muted)">it 4000</text>
+          <polyline fill="none" stroke="var(--accent-2)" stroke-width="2" points="67,58 74,63 88,50 102,56 130,38 172,61 228,34 284,35 340,148 410,160 480,171"></polyline>
+          <polyline fill="none" stroke="var(--accent)" stroke-width="2" points="74,78 102,80 130,84 172,136 228,152 284,158 340,167 410,174 508,183 620,193"></polyline>
+          <circle cx="620" cy="193" r="3.5" fill="var(--accent)"></circle>
+          <text x="612" y="185" font-size="11" text-anchor="end" fill="var(--ink)">2.16e-5</text>
+          <circle cx="480" cy="171" r="3.5" fill="var(--accent-2)"></circle>
+          <text x="480" y="162" font-size="11" text-anchor="middle" fill="var(--ink)">4.09e-5</text>
+        </svg>
+        <div class="legend" style="flex-wrap:wrap;">
+          <span><span class="swatch" style="background:var(--accent)"></span>relaxation 0.3 / 0.15 &middot; 4,000 it &middot; ~3.6 h</span>
+          <span><span class="swatch" style="background:var(--accent-2)"></span>relaxation 0.7 / 0.3 &middot; 3,000 it &middot; ~1 h</span>
+        </div>
+      </div>
+      <p style="margin-top:14px;">Not yet at the full-convergence target (1e-7). At the observed decay rate that's roughly 6&ndash;11+ more hours of compute &mdash; a real number, not a euphemism. Rather than launch another unsupervised multi-hour run against a solver with no way to save progress, the next thing built was checkpointing: <span class="mono">solve_with_checkpointing()</span> now saves full solver state every 200 iterations to an atomic, crash-safe file, and resumes automatically. Building it caught a real bug before it shipped &mdash; the first version silently re-zeroed the flow field's internal flux at every resume, costing extra iterations every time (300 vs. 269 to reach the same state) &mdash; caught by directly comparing a segmented run against a continuous reference rather than assuming the two were equivalent.</p>
+      <p class="muted" style="margin-top:10px;">Status as of 24 September 2026: no solve is running. The long checkpointed run toward the 1e-7 target has not been started yet.</p>
+    </div>
+  </div>
+</section>
+
+<section class="band">
+  <div class="wrap">
+    <div class="eyebrow">Principles</div>
+    <h2>What held this together</h2>
+    <div class="principles">
+      <div class="principle">
+        <h4>Verify before you trust it</h4>
+        <p>Every CFD case is gated on mass conservation, residual convergence, and mesh-convergence trend before it's allowed to train anything.</p>
+      </div>
+      <div class="principle">
+        <h4>Confirm the AI's answer with physics</h4>
+        <p>Optimized candidates are always re-run on the full CFD solver. The surrogate screens; it never has the final word.</p>
+      </div>
+      <div class="principle">
+        <h4>Diagnose before you fix</h4>
+        <p>Cheap mesh inspection ruled out or confirmed a cause before any multi-hour solve was spent testing it &mdash; and, once, corrected a bug in the diagnosis itself.</p>
+      </div>
+      <div class="principle">
+        <h4>Report the negative results</h4>
+        <p>Rejected fixes stay in the record with their numbers. A ceiling that's honestly measured is still a finding.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <div>Navier&#8209;Stokes AI &mdash; physics-grounded AI for CFD-driven device design.</div>
+  <div><a href="slides.html">Slides</a> &middot; <a href="https://navier-stokes-ai-verification.amir-yousef-sajjadi.chatgpt.site/">Results dashboard</a> &middot; <a href="https://github.com/asajjadi/navier-stokes-ai-case-study">Public case-study repo</a> &middot; full solver source is private</div>
+</footer>
+
+</body></html>
