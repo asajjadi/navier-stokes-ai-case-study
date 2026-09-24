@@ -4,3 +4,5 @@ __pycache__/
 generated/
 results/
 *.pyc
+evidence/NS-0001/figures/
+evidence/NS-0003/field_data.b64

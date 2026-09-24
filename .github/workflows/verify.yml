@@ -1,0 +1,26 @@
+name: Public CFD case checks
+on:
+  push:
+  pull_request:
+jobs:
+  verification:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python -m unittest discover -s tests -v
+      - run: python scripts/check_public_package.py
+      - run: python scripts/run_ns0001.py
+      - name: Confirm generated solver gates
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path('generated/NS-0001/verification.json').read_text())
+          assert all(value == 'pass' for value in result['release_gates'].values())
+          print(result['overall_verification'])
+          PY

@@ -1,0 +1,37 @@
+{
+  "source": "results/runs/NS-0003/baseline/field_data.npz",
+  "pressure_Pa": {
+    "min": -110.69326386136332,
+    "max": 735.569147213036,
+    "drop": 846.2615433795254
+  },
+  "velocity_m_s": {
+    "magnitude_max": 0.31400295952395707,
+    "axial_max": 0.31386434005219277,
+    "radial_min": -0.036839414132412936,
+    "radial_max": 0.03859472829111124
+  },
+  "device_wss_Pa": {
+    "max": 6.524640421680583,
+    "p95": 5.908886921989008,
+    "median": 4.154524036168082
+  },
+  "vessel_wss_Pa": {
+    "max": 5.288538768592691,
+    "p95": 5.018154860085079,
+    "median": 3.358942949927739
+  },
+  "wss_quality": {
+    "status": "mesh_sensitivity_quantified_separately",
+    "note": "Interpret with the dedicated NS-0003 three-grid mesh_sensitivity.json evidence; do not infer mesh independence from this single field alone."
+  },
+  "figures": [
+    "geometry",
+    "mesh",
+    "pressure-contour",
+    "velocity-contour",
+    "velocity-vectors",
+    "wall-shear-stress",
+    "convergence-history"
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "purpose": "NS-0003 bounded response mesh sensitivity before model freeze",
+  "physics": {
+    "rho_kg_m3": 1060.0,
+    "mu_Pa_s": 0.0035,
+    "flow_rate_m3_s": 1.6666666666666667e-06,
+    "continuity_tolerance_kg_s": 1e-09,
+    "outer_tolerance": 2e-05
+  },
+  "meshes": [
+    {
+      "nz": 121,
+      "nr": 31,
+      "converged": true,
+      "iterations": 42,
+      "pressure_drop_Pa": 841.8380538253552,
+      "velocity_max_m_s": 0.3137686615528684,
+      "device_wss_max_Pa": 6.516538104895807,
+      "device_wss_p95_Pa": 6.006331415946367,
+      "vessel_wss_max_Pa": 5.323765117731761,
+      "vessel_wss_p95_Pa": 5.068556298134765,
+      "mass_imbalance_kg_s": 0.0,
+      "final_continuity_kg_s": 2.2724016274842383e-19,
+      "final_outer_change": 1.8777290987800482e-05
+    },
+    {
+      "nz": 161,
+      "nr": 41,
+      "converged": true,
+      "iterations": 57,
+      "pressure_drop_Pa": 846.2615433795254,
+      "velocity_max_m_s": 0.31400295952395707,
+      "device_wss_max_Pa": 6.524640421680583,
+      "device_wss_p95_Pa": 5.908886921989008,
+      "vessel_wss_max_Pa": 5.288538768592691,
+      "vessel_wss_p95_Pa": 5.018154860085079,
+      "mass_imbalance_kg_s": 2.168404344971009e-19,
+      "final_continuity_kg_s": 7.356198354531682e-19,
+      "final_outer_change": 1.9557700398290227e-05
+    },
+    {
+      "nz": 201,
+      "nr": 51,
+      "converged": true,
+      "iterations": 71,
+      "pressure_drop_Pa": 851.3579549739748,
+      "velocity_max_m_s": 0.3142341098435817,
+      "device_wss_max_Pa": 6.46425190999668,
+      "device_wss_p95_Pa": 5.716012040315821,
+      "vessel_wss_max_Pa": 5.203502769423448,
+      "vessel_wss_p95_Pa": 4.930641943121857,
+      "mass_imbalance_kg_s": 0.0,
+      "final_continuity_kg_s": 3.805015825095325e-19,
+      "final_outer_change": 1.9317271034231084e-05
+    }
+  ],
+  "medium_to_fine_percent_change": {
+    "pressure_drop_Pa": 0.5986214805034807,
+    "velocity_max_m_s": 0.07355990721048043,
+    "device_wss_max_Pa": 0.9341918063328372,
+    "device_wss_p95_Pa": 3.3742910321534234,
+    "vessel_wss_max_Pa": 1.6342068590589973,
+    "vessel_wss_p95_Pa": 1.7748787677697984
+  },
+  "interpretation": {
+    "pressure_velocity": "Use sensitivity evidence to decide whether 161x41 is adequate for dataset production.",
+    "wss": "Retain explicit numerical-quality flag if WSS sensitivity remains materially larger than pressure/velocity sensitivity.",
+    "rule": "Do not weaken acceptance criteria to manufacture a freeze decision."
+  }
+}

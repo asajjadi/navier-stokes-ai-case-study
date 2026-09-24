@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.1",
+  "simulation_id": "NS-0001",
+  "status": "verified-straight-annulus",
+  "reference": {
+    "pressure_drop_Pa": 736.92179,
+    "max_axial_velocity_m_s": 0.26663
+  },
+  "numerical_result": {
+    "pressure_drop_Pa": 737.0409491180569,
+    "pressure_drop_relative_error": 0.0001616984592855201,
+    "max_axial_velocity_m_s": 0.2666595832467217,
+    "max_velocity_relative_error": 0.00011095243116565398,
+    "velocity_profile_relative_L2_error": 0.00015498475030470044,
+    "relative_mass_imbalance": 0.0,
+    "final_continuity_residual": 9.451669539395227e-08,
+    "final_axial_momentum_residual": 6.44981888170091e-08,
+    "final_radial_momentum_residual": 1.3433132304839804e-09,
+    "iterations": 28,
+    "runtime_seconds": 0.041469179000017675
+  },
+  "mesh_convergence": {
+    "solver": "src.physics.axisymmetric_fvm.solve",
+    "levels": [
+      {
+        "nr": 21,
+        "converged": true,
+        "pressure_drop_relative_error": 0.002592786325585348,
+        "velocity_profile_relative_L2_error": 0.0024841555030892483
+      },
+      {
+        "nr": 41,
+        "converged": true,
+        "pressure_drop_relative_error": 0.0006470166876275396,
+        "velocity_profile_relative_L2_error": 0.000619945749911334
+      },
+      {
+        "nr": 81,
+        "converged": true,
+        "pressure_drop_relative_error": 0.0001616984592855201,
+        "velocity_profile_relative_L2_error": 0.00015498475030470044
+      },
+      {
+        "nr": 161,
+        "converged": true,
+        "pressure_drop_relative_error": 4.0438988396195945e-05,
+        "velocity_profile_relative_L2_error": 3.881253935095365e-05
+      }
+    ],
+    "acceptance": {
+      "monotonic_pressure_error_reduction": true,
+      "monotonic_velocity_error_reduction": true,
+      "finest_pressure_relative_error_lt": 5e-05,
+      "finest_velocity_relative_L2_error_lt": 5e-05
+    }
+  },
+  "release_gates": {
+    "analytical_pressure_drop": "pass",
+    "analytical_velocity_profile": "pass",
+    "no_slip_walls": "pass",
+    "mass_conservation": "pass",
+    "residual_convergence": "pass",
+    "mesh_convergence": "pass"
+  },
+  "overall_verification": "STRAIGHT-ANNULUS NUMERICAL VERIFICATION PASSED",
+  "scope_warning": "This verifies only the fully developed straight concentric annulus numerical benchmark. The Entry-009 solver is not a general 2-D tapered-geometry CFD solver and does not model tip effects, radial flow, axial development, or recirculation."
+}

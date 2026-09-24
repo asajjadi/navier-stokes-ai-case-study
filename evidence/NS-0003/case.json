@@ -1,0 +1,23 @@
+{
+  "case_id": "NS-0003-baseline",
+  "source_commit": "695403bf71dcac1f884dcb1fd3ba786836fbecc7",
+  "model": "steady, incompressible, Newtonian, laminar, rigid-wall, 2D axisymmetric, concentric annulus with a continuous shaft and local enlarged device body",
+  "geometry_m": {
+    "vessel_radius": 0.002,
+    "shaft_radius": 0.001,
+    "device_radius": 0.0012,
+    "device_body_length": 0.015,
+    "upstream_taper_length": 0.003,
+    "downstream_taper_length": 0.003,
+    "device_center": 0.05,
+    "domain_length": 0.1
+  },
+  "physics": {
+    "density_kg_m3": 1060.0,
+    "dynamic_viscosity_Pa_s": 0.0035,
+    "volume_flow_m3_s": 1.6666666666666667e-6
+  },
+  "mesh": {"axial_nodes": 161, "radial_nodes": 41, "radial_stretch_beta": 1.8},
+  "solver_gates": {"max_iterations": 700, "continuity_tolerance_kg_s": 1e-9, "outer_change_tolerance": 2e-5},
+  "reproduction_scope": "Saved-field postprocessing only. This public package does not rerun the NS-0003 CFD solver."
+}
