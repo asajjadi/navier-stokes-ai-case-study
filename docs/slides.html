@@ -487,32 +487,75 @@ section td,section th{padding:4px 8px}
       <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; line-height:1.4; color:#0b5f52">Tested against exact Hagen-Poiseuille pipe flow (translation-invariant, no entrance-length ambiguity). L2 profile error decreases monotonically with refinement: 0.87% → 0.26% → 0.17% across 3 grid levels — a real release-gate test now, not a one-off run.</p>
     </div>
     <div style="display:flex; flex-direction:column; gap:8px; flex:1; padding:24px; background:#fbead0; border:1px solid #f0d5a6; border-radius:16px">
-      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; font-weight:600; color:#b5720b">Open finding: the rounded tip diverges; a cone does not</p>
-      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; line-height:1.4; color:#7a5417">The rounded tip diverges under every mesh fix tried (Entries 021–030). Root cause: badly skewed cells where the nose closes on the axis. A conical tip stays stable in two solves but has not yet converged (031–034).</p>
+      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; font-weight:600; color:#b5720b">Rounded tip still open; a conical tip is now solved</p>
+      <p style="font-family:'IBM Plex Sans', Arial, sans-serif; font-size:24px; line-height:1.4; color:#7a5417">The rounded tip diverged under every mesh fix tried (Entries 021–030). The conical tip converges once pressure-velocity coupling is fixed, and matches OpenFOAM to 0.1% in pressure drop (035).</p>
     </div>
   </div>
   
 </section></div></div>
+<div class="frame"><div class="scale"><section id="tip-stable-not-physical" data-transition="fade" style="background:#f7f7f4; color:#12181f; font-family:'IBM Plex Sans', Arial, sans-serif; padding:112px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:8px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#b5720b">Research appendix &middot; conical tip &middot; what field inspection caught</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:52px; font-weight:600; color:#12181f">Stable is not the same as correct</h2>
+  </div>
+  <div style="display:flex; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; padding:20px; background:#ffffff; border:1px solid #f0d5a6; border-radius:20px">
+      <img src="slides-img/9a6827cd2148e903794c64332b45e27d.png" alt="Velocity field of the earlier conical-tip solve: speeds near 1.25 m/s around the shaft and a fast streak along the axis behind the tip, several times the physical value" style="width:776px; height:400px; object-fit:contain; border-radius:10px">
+      <p style="font-size:24px; line-height:1.4; color:#7a5417"><b>Before:</b> residuals fell smoothly, yet peak speed was 4.3&nbsp;m/s (physical ~0.26), with a 300&nbsp;Pa pressure checkerboard</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; padding:20px; background:#ffffff; border:1px solid #bee6dc; border-radius:20px">
+      <img src="slides-img/165f9b0fa7a6ce5a7263f54f67fd6f1c.png" alt="Velocity field after the fix: developed annulus flow upstream, a slow wake behind the cone that fills in over about 5 mm, and a parabolic pipe profile at the outlet" style="width:776px; height:400px; object-fit:contain; border-radius:10px">
+      <p style="font-size:24px; line-height:1.4; color:#0b5f52"><b>After:</b> converged in 876 iterations; peak 0.264&nbsp;m/s, mass conserved, no checkerboard</p>
+    </div>
+  </div>
+  <div style="display:flex; flex-direction:column; padding:24px 28px; background:#12181f; border-radius:16px">
+    <p style="font-size:24px; line-height:1.4; color:#f2f4f3"><span style="color:#2dd4bf; font-weight:600">Root cause:</span> pressure and velocity were decoupled on the collocated grid, so a checkerboard could hide from the residuals. Fix: Rhie-Chow momentum interpolation.</p>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1664px; font-size:24px; color:#5b6570">Dev log Entry 035 &middot; 481&times;61 mesh &middot; same geometry, same flow rate, same solver family</p>
+</section></div></div>
+<div class="frame"><div class="scale"><section id="tip-converged-fields" data-transition="fade" style="background:#f7f7f4; color:#12181f; font-family:'IBM Plex Sans', Arial, sans-serif; padding:112px 128px 160px; display:flex; flex-direction:column; gap:32px">
+  <div style="display:flex; flex-direction:column; gap:8px">
+    <p style="font-size:24px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#0e7c6b">Research appendix &middot; conical tip &middot; converged solution, 481&times;61</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:52px; font-weight:600; color:#12181f">The converged pressure and velocity fields</h2>
+  </div>
+  <div style="display:flex; gap:32px">
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; padding:20px; background:#ffffff; border:1px solid #e2e4e0; border-radius:20px">
+      <img src="slides-img/16dc4dc6850dd461f0e26abcba7055bb.png" alt="Pressure field: a smooth, nearly linear fall along the annulus, a gentler slope in the open pipe beyond the tip, and a small low-pressure dip at the shaft-to-cone shoulder; zoom panel of the tip region below" style="width:776px; height:431px; object-fit:contain; border-radius:10px">
+      <p style="font-size:24px; line-height:1.4; color:#12181f"><b>Pressure</b> falls 276.5&nbsp;Pa inlet to outlet: 4,545&nbsp;Pa/m along the annulus (exact: 4,543), gentler once the vessel opens</p>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:12px; padding:20px; background:#ffffff; border:1px solid #e2e4e0; border-radius:20px">
+      <img src="slides-img/165f9b0fa7a6ce5a7263f54f67fd6f1c.png" alt="Velocity field: developed annulus flow upstream, a slow wake on the axis behind the cone that fills in over about 5 mm, and a parabolic pipe profile at the outlet; zoom panel of the tip region below" style="width:776px; height:431px; object-fit:contain; border-radius:10px">
+      <p style="font-size:24px; line-height:1.4; color:#12181f"><b>Velocity:</b> annulus peak 0.239&nbsp;m/s, a slow wake behind the apex filling in over ~5&nbsp;mm, pipe centreline 0.264&nbsp;m/s at the outlet</p>
+    </div>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1664px; font-size:24px; color:#5b6570">100&nbsp;mL/min, vessel 4&nbsp;mm, shaft 1.6&nbsp;mm, 0.8&nbsp;mm cone &middot; converged to 1e-7 in 876 iterations &middot; dev log Entry 035</p>
+</section></div></div>
 <div class="frame"><div class="scale"><section id="tip-conical-status" data-transition="fade" style="background:#f7f7f4; color:#12181f; font-family:'IBM Plex Sans', Arial, sans-serif; padding:112px 128px 160px; display:flex; flex-direction:column; gap:32px">
   <div style="display:flex; flex-direction:column; gap:8px">
-    <p style="font-size:24px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#b5720b">Research appendix &middot; conical tip, recorded status</p>
-    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:52px; font-weight:600; color:#12181f">Stable in both solves, not yet converged</h2>
+    <p style="font-size:24px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#0e7c6b">Research appendix &middot; conical tip &middot; independent cross-check</p>
+    <h2 style="font-family:'Space Grotesk', Arial, sans-serif; font-size:52px; font-weight:600; color:#12181f">Converged, and it matches OpenFOAM</h2>
   </div>
   <div style="display:flex; gap:48px; align-items:flex-start">
-    <div style="display:flex; flex-direction:column; gap:12px; padding:24px; background:#ffffff; border:1px solid #e2e4e0; border-radius:20px">
-      <svg aria-label="Convergence of the two conical-tip solves on a log scale. The 0.3/0.15 run falls steadily from 6.02e-4 to 2.16e-5 over 4,000 iterations. The 0.7/0.3 run oscillates near 1e-3 to 2e-3 until iteration 1,600, then drops to 4.09e-5 by iteration 3,000. Neither reaches the 1e-7 target." viewBox="0 0 852 370" style="width:852px; height:370px"><line x1="100" y1="320" x2="830" y2="320" stroke="#dfe2df" stroke-width="2"></line><line x1="100" y1="80" x2="830" y2="80" stroke="#dfe2df" stroke-width="2" stroke-dasharray="6,6"></line><text x="88" y="88" font-size="24" text-anchor="end" fill="#5b6570">1e-3</text><line x1="100" y1="200" x2="830" y2="200" stroke="#dfe2df" stroke-width="2" stroke-dasharray="6,6"></line><text x="88" y="208" font-size="24" text-anchor="end" fill="#5b6570">1e-4</text><line x1="100" y1="320" x2="830" y2="320" stroke="#dfe2df" stroke-width="2" stroke-dasharray="6,6"></line><text x="88" y="328" font-size="24" text-anchor="end" fill="#5b6570">1e-5</text><text x="100" y="360" font-size="24" fill="#5b6570">it 0</text><text x="465" y="360" font-size="24" text-anchor="middle" fill="#5b6570">2,000</text><text x="830" y="360" font-size="24" text-anchor="end" fill="#5b6570">4,000</text><polyline fill="none" stroke="#b5720b" stroke-width="4" points="109,77 118,84 136,66 155,74 191,48 246,81 319,42 392,43 465,212 556,229 648,247"></polyline><polyline fill="none" stroke="#0e7c6b" stroke-width="4" points="118,106 155,109 191,116 246,194 319,218 392,227 465,240 556,251 684,264 830,280"></polyline><circle cx="830" cy="280" r="7" fill="#0e7c6b"></circle><circle cx="648" cy="247" r="7" fill="#b5720b"></circle><text x="648" y="229" font-size="24" text-anchor="middle" fill="#12181f">4.1e-5</text><text x="826" y="262" font-size="24" text-anchor="end" fill="#12181f">2.2e-5</text></svg>
-      <p style="font-size:24px; color:#5b6570">Change per iteration, log scale, nz=241. Target 1e-7 is off the bottom.</p>
+    <div style="flex:none; width:991px; display:flex; flex-direction:column; gap:12px; padding:24px; background:#ffffff; border:1px solid #e2e4e0; border-radius:20px">
+      <img src="slides-img/ba13bd7c1ab83169d16db51e02942e6f.png" alt="Axial velocity profiles at eight stations from z = 25 to 99 mm: the custom solver's points lie on the OpenFOAM curves upstream of the tip and from 55 mm downstream; just behind the tip at 51 to 52 mm the custom wake fills in somewhat faster" style="width:943px; height:440px; object-fit:contain; border-radius:10px">
+      <p style="font-size:24px; color:#5b6570">Axial-velocity profiles at 8 stations: custom solver (dots) vs OpenFOAM (lines)</p>
     </div>
-    <div style="display:flex; flex-direction:column; gap:16px">
-      <table style="width:716px; border-collapse:collapse"><tr><th style="padding:10px 14px; border:1px solid #dfe2df; background:#eef0ee; font-size:24px; text-align:left">Relaxation (u / p)</th><th style="padding:10px 14px; border:1px solid #dfe2df; background:#eef0ee; font-size:24px; text-align:right"><span style="color:#0e7c6b">0.3 / 0.15</span></th><th style="padding:10px 14px; border:1px solid #dfe2df; background:#eef0ee; font-size:24px; text-align:right"><span style="color:#b5720b">0.7 / 0.3</span></th></tr><tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Iterations</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">4,000</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">3,000</td></tr><tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Wall time</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">~3.6 h</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">~1 h</td></tr><tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Final change / it</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">2.2e-5</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">4.1e-5</td></tr><tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Pressure drop</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">295 Pa</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">293 Pa</td></tr><tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Peak velocity</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">2.43 m/s</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">1.87 m/s</td></tr><tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Mid-domain flow</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">13% low</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">13% low</td></tr></table>
-      <p style="font-size:24px; line-height:1.4; color:#7a5417">Peak velocity differs ~30% between runs and flow is not yet conserved. Not reportable until converged.</p>
+    <div style="flex:none; width:625px; display:flex; flex-direction:column; gap:16px">
+      <table style="width:625px; border-collapse:collapse">
+        <tr><th style="padding:10px 14px; border:1px solid #dfe2df; background:#eef0ee; font-size:24px; text-align:left"></th><th style="padding:10px 14px; border:1px solid #dfe2df; background:#eef0ee; font-size:24px; text-align:right">This solver</th><th style="padding:10px 14px; border:1px solid #dfe2df; background:#eef0ee; font-size:24px; text-align:right">OpenFOAM</th></tr>
+        <tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Pressure drop</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right; font-weight:600; color:#0e7c6b">276.5 Pa</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">276.7 Pa</td></tr>
+        <tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Peak speed</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right; font-weight:600; color:#0e7c6b">0.264 m/s</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">0.264 m/s</td></tr>
+        <tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Flow at 25 / 80 mm</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">100 mL/min</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">100 mL/min</td></tr>
+        <tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Iterations</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">876</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">~300</td></tr>
+        <tr><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px">Mesh</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">481&times;61</td><td style="padding:10px 14px; border:1px solid #dfe2df; font-size:24px; text-align:right">22,640 cells</td></tr>
+      </table>
+      <p style="font-size:24px; line-height:1.4; color:#5b6570">OpenFOAM itself checks out: upstream gradient within 0.05% of the exact solution, mesh-independent to 0.2%.</p>
     </div>
   </div>
   <div style="display:flex; flex-direction:column; padding:24px 28px; background:#def2ed; border:1px solid #bee6dc; border-radius:16px">
-    <p style="font-size:24px; line-height:1.4; color:#0b5f52"><b>Next:</b> resume from the 0.3 / 0.15 settings with checkpointing (save every 200 iterations, built and tested in Entry 034). The prior runs did not meet the 1e-7 target or conserve mid-domain flow. Recheck the current run log before presenting a status update.</p>
+    <p style="font-size:24px; line-height:1.4; color:#0b5f52"><b>Remaining gap:</b> just behind the apex the wake fills in faster. With the same first-order scheme at the same resolution, OpenFOAM matches it: this is convection order plus tip resolution, not a bug.</p>
   </div>
-  <p style="position:absolute; left:128px; bottom:64px; width:1664px; font-size:24px; color:#5b6570">Source: dev log Entries 032&ndash;034 &middot; not connected to the NS-0003 dataset or surrogate</p>
-  
+  <p style="position:absolute; left:128px; bottom:64px; width:1664px; font-size:24px; color:#5b6570">Dev log Entry 035 &middot; OpenFOAM v2606 simpleFoam, 5&deg; axisymmetric wedge, developed-annulus inlet &middot; not connected to the NS-0003 dataset</p>
 </section></div></div>
 <script>
 function fit(){document.querySelectorAll('.frame').forEach(f=>{f.firstElementChild.style.transform='scale('+(f.clientWidth/1920)+')'})}
