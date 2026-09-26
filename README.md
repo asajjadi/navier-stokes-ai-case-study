@@ -2,6 +2,8 @@
 
 A small, runnable verification example from a physics-grounded CFD and AI design project. It contains an analytical and numerical straight-annulus benchmark (NS–0001) and a frozen device-case field package (NS–0003). [Explore the interactive dashboard](https://navier-stokes-ai-verification.amir-yousef-sajjadi.chatgpt.site/#results) , [read the CFD report](https://navier-stokes-ai-verification.amir-yousef-sajjadi.chatgpt.site/report.html), or [inspect the AI evidence](https://navier-stokes-ai-verification.amir-yousef-sajjadi.chatgpt.site/ai.html).
 
+**On GitHub Pages:** [case study page](https://asajjadi.github.io/navier-stokes-ai-case-study/) · [talk slides](https://asajjadi.github.io/navier-stokes-ai-case-study/slides.html), including the catheter-tip research appendix. Source: [`docs/index.html`](docs/index.html) and [`docs/slides.html`](docs/slides.html).
+
 | Case | What you can reproduce here | Recorded result |
 |---|---|---|
 | NS–0001 · concentric annulus | Run the analytical model and iterative straight-annulus numerical solver, regenerate convergence and field plots, and test grid refinement | Analytical Δp = 736.92179 Pa; numerical Δp ≈ 737.04095 Pa |
